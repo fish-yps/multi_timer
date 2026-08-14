@@ -96,11 +96,11 @@ class TimerCard:
         self.task = task
         self.card = tk.Canvas(master, bg=C.BG_GLASS, highlightthickness=0, bd=0, height=92)
         self.card.pack(fill="x", pady=4)
-        self.start_btn = RoundButton(self.card, "开始",
+        self.start_btn = RoundButton(self.card, C.tr("start"),
                                      lambda: app.on_toggle(task.id),
                                      C.GREEN, "#eafff4", bold=True, width=64,
                                      surface=C.SURFACE)
-        self.del_btn = RoundButton(self.card, "删除",
+        self.del_btn = RoundButton(self.card, C.tr("delete"),
                                    lambda: app.on_remove(task.id),
                                    C.BTN_DELETE_BG, C.BTN_DELETE_FG, width=64,
                                    surface=C.SURFACE)

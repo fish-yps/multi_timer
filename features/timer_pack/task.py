@@ -3,13 +3,15 @@
 
 import json
 
+from . import config as C
+
 
 class TimerTask:
     def __init__(self, _id, total, name=None):
         self.id = _id
         self.total = int(total)
         self.remaining = self.total
-        self.name = name or f"计时器 {_id}"
+        self.name = name or f"{C.tr('timer_default')} {_id}"
         self.state = "paused"  # running / paused / done
 
     def start(self):

@@ -100,7 +100,7 @@ class TimerPackApp(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title(C.WINDOW_TITLE)
+        self.title(C.tr("title"))
         self.geometry(C.WINDOW_SIZE)
         self.minsize(*C.WINDOW_MIN)
         self.configure(bg=C.BG_GLASS)
@@ -172,15 +172,15 @@ class TimerPackApp(tk.Tk):
             icon.update_menu()
 
         menu = pystray.Menu(
-            pystray.MenuItem("显示窗口", on_show, default=True),
+            pystray.MenuItem(C.tr("tray_show"), on_show, default=True),
             pystray.MenuItem(
-                "开机自启",
+                C.tr("tray_autostart"),
                 on_autostart,
                 checked=lambda item: autostart_enabled(),
             ),
-            pystray.MenuItem("退出", on_quit),
+            pystray.MenuItem(C.tr("tray_quit"), on_quit),
         )
-        self._tray = pystray.Icon(C.APP_NAME, make_image(), "多倒计时", menu)
+        self._tray = pystray.Icon(C.APP_NAME, make_image(), C.tr("title"), menu)
         self._tray_thread = threading.Thread(target=self._tray.run, daemon=True)
         self._tray_thread.start()
 
@@ -227,24 +227,24 @@ class TimerPackApp(tk.Tk):
     def _build_topbar(self):
         bar = tk.Frame(self, bg=C.BG_GLASS)
         bar.pack(fill="x", padx=14, pady=(14, 4))
-        tk.Label(bar, text=C.WINDOW_TITLE, fg=C.FG, bg=C.BG_GLASS,
+        tk.Label(bar, text=C.tr("title"), fg=C.FG, bg=C.BG_GLASS,
                  font=C.FONT_TITLE).pack(side="left")
-        tk.Label(bar, text="  时长 分:秒", fg=C.FG_MUTED, bg=C.BG_GLASS,
+        tk.Label(bar, text="  " + C.tr("time_hint"), fg=C.FG_MUTED, bg=C.BG_GLASS,
                  font=C.FONT_LABEL).pack(side="left", padx=(18, 4))
         self.entry = RoundEntry(bar, width=8)
         self.entry.pack(side="left")
         self.entry.entry.insert(0, "25:00")
         self.entry.entry.bind("<Return>", lambda e: self.add_from_entry())
-        RoundButton(bar, "添加", self.add_from_entry, C.GREEN, "#eafff4",
+        RoundButton(bar, C.tr("add"), self.add_from_entry, C.GREEN, "#eafff4",
                     bold=True).pack(side="left", padx=6)
 
     def _build_presets(self):
         presets = tk.Frame(self, bg=C.BG_GLASS)
         presets.pack(fill="x", padx=14, pady=(6, 4))
-        for sec, text in C.PRESETS:
-            RoundButton(presets, text, lambda s=sec: self.on_add(s),
+        for sec, key in C.PRESETS:
+            RoundButton(presets, C.tr(key), lambda s=sec: self.on_add(s),
                         C.SURFACE_LIGHT, C.FG_MUTED, width=52).pack(side="left", padx=3)
-        RoundButton(presets, "全部暂停", self.on_pause_all,
+        RoundButton(presets, C.tr("pause_all"), self.on_pause_all,
                     C.SURFACE_LIGHT, C.WARN, width=72).pack(side="right")
 
     def _build_list(self):
@@ -272,7 +272,7 @@ class TimerPackApp(tk.Tk):
         try:
             seconds = TimerTask.parse_time(self.entry.entry.get())
         except (ValueError, IndexError):
-            messagebox.showwarning("格式错误", "请输入秒数或 分:秒（如 25:00 或 1:30:00）")
+            messagebox.showwarning(C.tr("bad_format_title"), C.tr("bad_format_msg"))
             return
         if seconds <= 0:
             return
@@ -289,10 +289,10 @@ class TimerPackApp(tk.Tk):
         card = TimerCard(self.list_frame, self, task)
         self.cards[task.id] = card
         if task.state == "running":
-            card.start_btn.set_text("暂停")
+            card.start_btn.set_text(C.tr("pause"))
             card.start_btn.set_style(C.GREEN_BRIGHT, "#eafff4")
         elif task.state == "paused" and task.remaining < task.total:
-            card.start_btn.set_text("继续")
+            card.start_btn.set_text(C.tr("resume"))
             card.start_btn.set_style(C.BTN_PAUSE_BG, C.BTN_PAUSE_FG)
         self._redraw(task)
         return card
@@ -304,10 +304,10 @@ class TimerPackApp(tk.Tk):
         task.toggle()
         btn = self.cards[_id].start_btn
         if task.state == "running":
-            btn.set_text("暂停")
+            btn.set_text(C.tr("pause"))
             btn.set_style(C.GREEN_BRIGHT, "#eafff4")
         else:
-            btn.set_text("继续")
+            btn.set_text(C.tr("resume"))
             btn.set_style(C.BTN_PAUSE_BG, C.BTN_PAUSE_FG)
         self._redraw(task)
         self._save_state()
@@ -315,7 +315,7 @@ class TimerPackApp(tk.Tk):
     def on_pause_all(self):
         self.manager.pause_all()
         for task in self.manager.tasks:
-            self.cards[task.id].start_btn.set_text("继续")
+            self.cards[task.id].start_btn.set_text(C.tr("resume"))
             self.cards[task.id].start_btn.set_style(C.BTN_PAUSE_BG, C.BTN_PAUSE_FG)
             self._redraw(task)
         self._save_state()
@@ -342,12 +342,12 @@ class TimerPackApp(tk.Tk):
             self._redraw(task)
         for task in due:
             card = self.cards[task.id]
-            card.start_btn.set_text("完成")
+            card.start_btn.set_text(C.tr("done"))
             card.start_btn.set_style(C.GREEN, "#eafff4")
             self._redraw(task)
             self._show_toast(task)
             task.reset()
-            card.start_btn.set_text("重开")
+            card.start_btn.set_text(C.tr("restart"))
             card.start_btn.set_style(C.GREEN_BRIGHT, "#eafff4")
             self._redraw(task)
         self.after(1000, self._tick)
@@ -358,7 +358,7 @@ class TimerPackApp(tk.Tk):
             from winotify import Notification
             toast = Notification(
                 app_id="MultiTimer",
-                title="倒计时已结束",
+                title=C.tr("toast_done"),
                 msg=f"{task.name} · {TimerTask.format_time(task.total)}",
                 icon=self._toast_icon_path(),
                 duration="short",
@@ -378,7 +378,7 @@ class TimerPackApp(tk.Tk):
     def exec_cmd(self, cmd):
         parts = cmd.strip().split()
         if not parts:
-            return "ERR 空命令"
+            return "ERR empty command"
         op = parts[0].lower()
         try:
             if op == "add":
@@ -387,9 +387,9 @@ class TimerPackApp(tk.Tk):
                 try:
                     seconds = TimerTask.parse_time(spec)
                 except (ValueError, IndexError):
-                    return "ERR 时间格式错误: " + spec
+                    return "ERR invalid time: " + spec
                 if seconds <= 0:
-                    return "ERR 时间必须为正"
+                    return "ERR time must be positive"
                 task = self.on_add(seconds, name)
                 return f"OK added {task.id} {spec}"
             if op == "rename" and len(parts) > 2:
@@ -398,16 +398,16 @@ class TimerPackApp(tk.Tk):
                 if self.manager.rename(_id, name):
                     self._save_state()
                     return "OK renamed"
-                return "ERR 未找到 " + parts[1]
+                return "ERR not found " + parts[1]
             if op == "remove" and len(parts) > 1:
                 _id = int(parts[1])
-                return "OK removed " + str(_id) if self.on_remove(_id) else "ERR 未找到 " + parts[1]
+                return "OK removed " + str(_id) if self.on_remove(_id) else "ERR not found " + parts[1]
             if op == "toggle" and len(parts) > 1:
                 _id = int(parts[1])
                 if self.manager.get(_id):
                     self.on_toggle(_id)
                     return "OK toggled " + str(_id)
-                return "ERR 未找到 " + parts[1]
+                return "ERR not found " + parts[1]
             if op == "pause":
                 self.on_pause_all()
                 return "OK all paused"
@@ -416,6 +416,6 @@ class TimerPackApp(tk.Tk):
             if op == "show":
                 self.after(0, self._show_window)
                 return "OK showing"
-            return "ERR 未知命令: " + op
+            return "ERR unknown command: " + op
         except (ValueError, IndexError):
-            return "ERR 参数错误"
+            return "ERR bad arguments"
