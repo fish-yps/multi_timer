@@ -16,7 +16,13 @@ A Windows multi-countdown desktop app with a frosted-glass green theme. Run mult
 
 ## Screenshots
 
-(To be added)
+![MultiTimer main window](screenshots/app.png)
+
+*The main window — frosted glass dark green theme with rounded timer cards*
+
+![MultiTimer in the YASB status bar](screenshots/statusbar.png)
+
+*Live countdowns shown in the YASB status bar via the Custom Widget integration*
 
 ## Quick Start
 
@@ -106,6 +112,10 @@ pyinstaller --noconfirm --clean --onefile --windowed \
 - Icon: generated with `Pillow` (frosted-green clock, see `make_icon.py`)
 - Single instance: Windows Mutex
 - Persistence: JSON state file (`multi_timer_state.json` next to the exe)
+
+## Author's note
+
+This is just a very small project created by a middle school student, and I use AI to help me debug and mix, so it is not as great as many other projects which have the same functionality. If you have any problems when using this app, I'll try my best to fix it. And I may not have enough time to deal with your suggestions and the bug reports. (excuse me!!!)
 
 ## License
 
